@@ -159,19 +159,32 @@
             'footer2': { zh: '数据来自 IMDb / TMDb / X / 小红书', en: 'Data from IMDb, TMDb, X, RedNote' }
         };
 
-        function renderCards(containerId, data) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = data.map(item => `
-                <div class="card-hover bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-700">
+        <!-- Replace the entire renderCards function in <script> -->
+function renderCards(containerId, data) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = data.map(item => {
+        const tmdbLink = item.tmdbId ? 
+            `https://www.themoviedb.org/${item.mediaType || 'tv'}/${item.tmdbId}` : 
+            (item.imdbId ? `https://www.imdb.com/title/${item.imdbId}` : '#');
+        
+        return `
+            <a href="${tmdbLink}" target="_blank" class="block">
+                <div class="card-hover bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-700 cursor-pointer">
                     <img src="${item.img}" alt="${item.title}" class="w-full aspect-video object-cover">
                     <div class="p-4">
                         <h3 class="font-semibold text-lg">${currentLang === 'zh' && item.zhTitle ? item.zhTitle : item.title}</h3>
                         <p class="text-xs text-zinc-400">${item.year} • ${item.rating}</p>
                         <p class="text-sm text-zinc-300 mt-2 line-clamp-2">${currentLang === 'zh' && item.zhDesc ? item.zhDesc : item.desc}</p>
+                        <div class="text-[10px] text-pink-400 mt-3 flex items-center gap-1">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            <span>${currentLang === 'zh' ? '查看详情 on TMDb' : 'View on TMDb/IMDb'}</span>
+                        </div>
                     </div>
                 </div>
-            `).join('');
-        }
+            </a>
+        `;
+    }).join('');
+}
 
         function renderXBuzz() {
             const container = document.getElementById('x-buzz');
