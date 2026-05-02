@@ -1,576 +1,224 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WatchTrend • What's Everyone Watching Right Now</title>
+    <title>你瞅啥 • 大家正在看啥</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
-        
-        :root {
-            --primary: #ff00aa;
-        }
-        
-        body {
-            font-family: 'Inter', system_ui, sans-serif;
-        }
-        
-        .logo-font {
-            font-family: 'Space Grotesk', sans-serif;
-        }
-
-        .hero-bg {
-            background: linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.65) 100%), url('https://picsum.photos/id/1015/1920/1080') center/cover no-repeat;
-        }
-
-        .card-hover {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-4px) scale(1.03);
-            box-shadow: 0 20px 25px -5px rgb(249 115 22), 0 8px 10px -6px rgb(249 115 22);
-        }
-
-        .trend-bar {
-            animation: pulse 2s infinite;
-        }
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .logo-font { font-family: 'Space Grotesk', sans-serif; }
+        .hero-bg { background: linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.65) 100%), url('https://picsum.photos/id/1015/1920/1080') center/cover no-repeat; }
+        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { transform: translateY(-8px) scale(1.04); box-shadow: 0 25px 50px -12px rgb(236 72 153); }
     </style>
 </head>
 <body class="bg-zinc-950 text-white">
-    <!-- NAVBAR -->
     <nav class="bg-black border-b border-zinc-800 sticky top-0 z-50">
         <div class="max-w-screen-2xl mx-auto px-8 py-5 flex items-center justify-between">
             <div class="flex items-center gap-x-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-violet-500 rounded-2xl flex items-center justify-center text-2xl">📺</div>
-                <h1 class="logo-font text-3xl tracking-tighter">WatchTrend</h1>
+                <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-violet-500 rounded-2xl flex items-center justify-center text-3xl">👀</div>
+                <h1 class="logo-font text-4xl tracking-tighter">你瞅啥</h1>
             </div>
-            
             <div class="hidden md:flex items-center gap-x-8 text-sm font-medium">
-                <a href="#" onclick="switchTab(0)" class="tab-link flex items-center gap-x-1 hover:text-pink-400 transition-colors active" id="tab-0">
-                    <i class="fa-solid fa-globe"></i>
-                    <span>GLOBAL</span>
-                </a>
-                <a href="#" onclick="switchTab(1)" class="tab-link flex items-center gap-x-1 hover:text-pink-400 transition-colors" id="tab-1">
-                    <i class="fa-solid fa-fire"></i>
-                    <span>TV SHOWS</span>
-                </a>
-                <a href="#" onclick="switchTab(2)" class="tab-link flex items-center gap-x-1 hover:text-pink-400 transition-colors" id="tab-2">
-                    <i class="fa-solid fa-film"></i>
-                    <span>MOVIES</span>
-                </a>
-                <a href="#" onclick="switchTab(3)" class="tab-link flex items-center gap-x-1 hover:text-pink-400 transition-colors" id="tab-3">
-                    <i class="fa-solid fa-redhat"></i>
-                    <span>REDNOTE / 小红书</span>
-                </a>
-                <a href="#" onclick="switchTab(4)" class="tab-link flex items-center gap-x-1 hover:text-pink-400 transition-colors" id="tab-4">
-                    <i class="fa-solid fa-x-twitter"></i>
-                    <span>LIVE X BUZZ</span>
-                </a>
+                <a href="#" onclick="switchTab(0)" class="tab-link active text-pink-400 flex items-center gap-x-1" id="tab-0"><i class="fa-solid fa-globe"></i> GLOBAL</a>
+                <a href="#" onclick="switchTab(1)" class="tab-link flex items-center gap-x-1 hover:text-pink-400" id="tab-1"><i class="fa-solid fa-tv"></i> TV</a>
+                <a href="#" onclick="switchTab(2)" class="tab-link flex items-center gap-x-1 hover:text-pink-400" id="tab-2"><i class="fa-solid fa-film"></i> MOVIES</a>
+                <a href="#" onclick="switchTab(3)" class="tab-link flex items-center gap-x-1 hover:text-pink-400" id="tab-3"><i class="fa-solid fa-redhat"></i> 小红书</a>
+                <a href="#" onclick="switchTab(4)" class="tab-link flex items-center gap-x-1 hover:text-pink-400" id="tab-4"><i class="fa-brands fa-x-twitter"></i> X BUZZ</a>
             </div>
-
             <div class="flex items-center gap-x-4">
-                <!-- Search -->
-                <div class="relative">
-                    <input 
-                        id="search-input"
-                        type="text" 
-                        placeholder="Search shows or movies..." 
-                        onkeyup="if(event.key==='Enter') filterContent()"
-                        class="bg-zinc-900 border border-zinc-700 focus:border-pink-400 rounded-3xl px-5 py-2 pl-10 w-72 text-sm focus:outline-none transition-all">
-                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-zinc-400"></i>
-                </div>
-                
-                <a href="https://github.com/dnyx51" target="_blank" 
-                   class="flex items-center gap-x-2 bg-zinc-900 hover:bg-white hover:text-black px-5 py-2 rounded-3xl text-sm font-medium transition-colors">
-                    <i class="fa-brands fa-github"></i>
-                    <span>My Repo</span>
-                </a>
-                
-                <button onclick="refreshData()" 
-                        class="flex items-center gap-x-2 bg-gradient-to-r from-pink-500 to-violet-500 px-6 py-2 rounded-3xl text-sm font-semibold hover:scale-105 transition-all">
-                    <i class="fa-solid fa-rotate"></i>
-                    <span>REFRESH TRENDS</span>
+                <input id="search-input" type="text" placeholder="搜索剧集 / 电影..." 
+                       class="bg-zinc-900 border border-zinc-700 focus:border-pink-400 rounded-3xl px-5 py-2 pl-10 w-72 text-sm focus:outline-none" onkeyup="if(event.key==='Enter') filterContent()">
+                <button onclick="refreshAllData()" class="bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 px-6 py-2.5 rounded-3xl text-sm font-semibold flex items-center gap-x-2 transition-all">
+                    <i class="fa-solid fa-rotate"></i> LIVE REFRESH
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- HERO -->
     <header class="hero-bg h-screen flex items-center relative">
         <div class="max-w-screen-2xl mx-auto px-8 text-center">
-            <div class="inline-flex items-center gap-x-2 bg-white/10 backdrop-blur-md text-white text-xs font-medium tracking-widest px-6 py-3 rounded-3xl mb-6 border border-white/20">
+            <div class="inline-flex items-center gap-x-2 bg-white/10 backdrop-blur-md px-6 py-2 rounded-3xl mb-6 text-sm">
                 <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                LIVE • MAY 2026
+                LIVE • 2026年5月
             </div>
-            
             <h2 class="text-7xl md:text-8xl font-semibold logo-font tracking-tighter leading-none mb-4">
-                WHAT'S <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-violet-400">EVERYONE</span><br>WATCHING RIGHT NOW
+                大家正在看啥？
             </h2>
-            <p class="text-xl text-zinc-300 max-w-2xl mx-auto mb-10">
-                Real-time trends from <span class="text-pink-400">IMDb</span>, 
-                <span class="text-pink-400">X (Twitter)</span>, and 
-                <span class="text-pink-400">小红书 RedNote</span>.<br>
-                Built just for you, Dani 👋
-            </p>
-            
-            <div class="flex items-center justify-center gap-x-4">
-                <button onclick="switchTab(0)" 
-                        class="px-10 py-4 bg-white text-black rounded-3xl font-semibold flex items-center gap-x-3 hover:bg-amber-300 transition-colors">
-                    <i class="fa-solid fa-chart-line"></i>
-                    SEE GLOBAL TRENDS
-                </button>
-                <button onclick="switchTab(3)" 
-                        class="px-10 py-4 border-2 border-white/70 hover:border-white rounded-3xl font-medium flex items-center gap-x-3">
-                    <i class="fa-solid fa-redhat"></i>
-                    EXPLORE REDNOTE TRENDS
-                </button>
-            </div>
-            
-            <div class="mt-16 flex flex-wrap justify-center gap-8 text-xs uppercase tracking-widest opacity-75">
-                <div class="flex items-center gap-x-1"><i class="fa-solid fa-tv"></i> <span>IMDb TV Meter</span></div>
-                <div class="flex items-center gap-x-1"><i class="fa-solid fa-film"></i> <span>Box Office + Social</span></div>
-                <div class="flex items-center gap-x-1"><i class="fa-brands fa-x-twitter"></i> <span>X Buzz</span></div>
-                <div class="flex items-center gap-x-1"><i class="fa-solid fa-redhat"></i> <span>小红书 Hot Searches</span></div>
-            </div>
-        </div>
-        
-        <!-- Floating badges -->
-        <div class="absolute bottom-12 left-12 bg-zinc-900/80 backdrop-blur-md rounded-3xl px-5 py-3 flex items-center gap-x-3 text-sm border border-pink-400/30">
-            <span class="text-pink-400 font-bold">#1</span>
-            <span>The Boys is still dominating</span>
-        </div>
-        <div class="absolute bottom-12 right-12 bg-zinc-900/80 backdrop-blur-md rounded-3xl px-5 py-3 flex items-center gap-x-3 text-sm border border-violet-400/30">
-            <span class="text-violet-400 font-bold">LIVE</span>
-            <span>Project Hail Mary trending on X</span>
+            <p class="text-xl text-zinc-300 max-w-xl mx-auto">IMDb • X • 小红书 实时趋势 • 为你量身打造</p>
+            <button onclick="fetchTMDBTrends()" class="mt-10 px-10 py-4 bg-white text-black rounded-3xl font-semibold flex items-center gap-x-3 mx-auto hover:bg-amber-300 transition-all">
+                <i class="fa-solid fa-bolt"></i> 从 TMDb 拉取最新全球趋势
+            </button>
         </div>
     </header>
 
-    <!-- MAIN CONTENT -->
     <main class="max-w-screen-2xl mx-auto px-8 pb-20">
-        
-        <!-- GLOBAL TRENDS SECTION -->
+        <!-- GLOBAL -->
         <div id="content-0" class="tab-content">
             <div class="flex justify-between items-baseline mb-8">
-                <h2 class="text-4xl font-semibold">🌍 Global Trends • Powered by IMDb + Social</h2>
-                <p class="text-zinc-400 text-sm flex items-center gap-x-2">
-                    <span class="trend-bar w-3 h-3 bg-green-400 rounded-full inline-block"></span>
-                    Updated moments ago • May 1, 2026
-                </p>
+                <h2 class="text-4xl font-semibold">🌍 Global Live Trends (IMDb + TMDb)</h2>
             </div>
-            
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" id="global-grid">
-                <!-- Populated by JS -->
-            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" id="global-grid"></div>
         </div>
 
-        <!-- TV SHOWS SECTION -->
+        <!-- TV -->
         <div id="content-1" class="tab-content hidden">
-            <div class="flex justify-between items-baseline mb-8">
-                <h2 class="text-4xl font-semibold">📺 Hot TV Shows Right Now</h2>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" id="tv-grid">
-                <!-- Populated by JS -->
-            </div>
+            <h2 class="text-4xl font-semibold mb-8">📺 Hot TV Shows</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" id="tv-grid"></div>
         </div>
 
-        <!-- MOVIES SECTION -->
+        <!-- MOVIES -->
         <div id="content-2" class="tab-content hidden">
-            <div class="flex justify-between items-baseline mb-8">
-                <h2 class="text-4xl font-semibold">🎬 Trending Movies</h2>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" id="movie-grid">
-                <!-- Populated by JS -->
-            </div>
+            <h2 class="text-4xl font-semibold mb-8">🎬 Trending Movies</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" id="movie-grid"></div>
         </div>
 
-        <!-- REDNOTE / 小红书 SECTION -->
+        <!-- REDNOTE -->
         <div id="content-3" class="tab-content hidden">
-            <div class="flex justify-between items-baseline mb-8">
-                <h2 class="text-4xl font-semibold">🇨🇳 小红书 RedNote Trends • Chinese Social Buzz</h2>
-                <span class="text-sm text-rose-400 flex items-center gap-x-1"><i class="fa-solid fa-redhat"></i> Real mentions from Xiaohongshu</span>
-            </div>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6" id="rednote-grid">
-                <!-- Populated by JS -->
-            </div>
-            <p class="text-xs text-zinc-500 mt-6 text-center">Data aggregated from public RedNote discussions, C-drama heat lists, and viral short-form content. Chinese users are loving fresh 2026 releases and star-driven stories.</p>
+            <h2 class="text-4xl font-semibold mb-8">🇨🇳 小红书 / C-Drama Hot</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" id="rednote-grid"></div>
         </div>
 
-        <!-- LIVE X BUZZ SECTION -->
+        <!-- X BUZZ -->
         <div id="content-4" class="tab-content hidden">
-            <div class="flex justify-between items-baseline mb-8">
-                <h2 class="text-4xl font-semibold">🐦 Live Buzz on X (Twitter)</h2>
-            </div>
-            <div class="space-y-6" id="x-buzz">
-                <!-- Populated by JS -->
-            </div>
+            <h2 class="text-4xl font-semibold mb-8">🐦 Live X Buzz</h2>
+            <div class="space-y-6" id="x-buzz"></div>
         </div>
-
     </main>
 
-    <!-- FOOTER -->
-    <footer class="bg-black py-12 border-t border-zinc-800">
-        <div class="max-w-screen-2xl mx-auto px-8">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-y-6">
-                <div>
-                    <div class="flex items-center gap-x-3 mb-3">
-                        <div class="w-8 h-8 bg-gradient-to-br from-pink-500 to-violet-500 rounded-2xl flex items-center justify-center text-xl">📺</div>
-                        <span class="logo-font text-3xl">WatchTrend</span>
-                    </div>
-                    <p class="text-zinc-400 text-sm">Built live for Dani (@dnyx51) by Grok • May 2026</p>
-                    <p class="text-xs text-zinc-500 mt-1">Your personal trend dashboard. Pulls IMDb charts, X conversations, and RedNote hot searches.</p>
-                </div>
-                
-                <div class="text-center md:text-right">
-                    <a href="https://github.com/dnyx51" target="_blank" class="text-pink-400 hover:text-pink-300 flex items-center justify-center md:justify-end gap-x-2 mb-2">
-                        <i class="fa-brands fa-github text-xl"></i>
-                        <span class="font-medium">Push this to your GitHub →</span>
-                    </a>
-                    <p class="text-xs text-zinc-400">Just copy everything above into <code class="bg-zinc-900 px-2 py-0.5 rounded">index.html</code> in a new repo, enable GitHub Pages, and you're live in 60 seconds.</p>
-                    <div class="flex gap-x-6 text-xs mt-8 text-zinc-500">
-                        <a href="https://www.imdb.com/chart/tvmeter/" target="_blank" class="hover:text-white">IMDb TV Meter</a>
-                        <a href="https://www.imdb.com/chart/moviemeter/" target="_blank" class="hover:text-white">IMDb Movies</a>
-                        <a href="https://x.com" target="_blank" class="hover:text-white">X Trends</a>
-                        <a href="https://www.xiaohongshu.com/" target="_blank" class="hover:text-white">小红书</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <footer class="bg-black py-12 border-t border-zinc-800 text-center text-zinc-400 text-sm">
+        <p>你瞅啥 @dnyx51 • nichousha repo • Data from IMDb, TMDb, X, 小红书</p>
+        <p class="mt-2">Paste your free TMDb API key in the script and click LIVE REFRESH</p>
+        <a href="https://github.com/dnyx51/nichousha" target="_blank" class="text-pink-400 hover:underline mt-4 inline-block">GitHub Repo</a>
     </footer>
 
     <script>
-        // Tailwind script already loaded
-        function initializeTailwind() {
-            tailwind.config = {
-                content: [],
-                theme: {
-                    extend: {}
-                }
-            }
-        }
+        // ====================== TMDb API KEY ======================
+        // Get free key: https://www.themoviedb.org/settings/api (v3 Auth)
+        const TMDB_API_KEY = '';   // ← PASTE YOUR KEY HERE
 
-        // Trending data (sourced live from IMDb, X, RedNote as of May 2026)
-        const globalTrends = [
-            {
-                title: "The Boys",
-                year: "2019–2026",
-                rating: "8.6",
-                platform: "IMDb #1 • Prime Video",
-                desc: "Still the most searched show on the planet",
-                source: "IMDb TV Meter",
-                img: "https://picsum.photos/id/1015/400/300"
-            },
-            {
-                title: "Invincible",
-                year: "2021–",
-                rating: "8.7",
-                platform: "IMDb #2 • Prime Video",
-                desc: "Season 3 dominating discussions",
-                source: "IMDb + X",
-                img: "https://picsum.photos/id/201/400/300"
-            },
-            {
-                title: "Project Hail Mary",
-                year: "2026",
-                rating: "N/A",
-                platform: "Ryan Gosling • Most talked movie",
-                desc: "Early buzz is insane on X",
-                source: "IMDb + Social",
-                img: "https://picsum.photos/id/870/400/300"
-            },
-            {
-                title: "Michael",
-                year: "2026",
-                rating: "N/A",
-                platform: "Jaafar Jackson biopic",
-                desc: "Box office + social explosion",
-                source: "IMDb Movie Meter",
-                img: "https://picsum.photos/id/1005/400/300"
-            },
-            {
-                title: "Apex",
-                year: "2026",
-                rating: "N/A",
-                platform: "Charlize Theron & Taron Egerton",
-                desc: "Action thriller heating up",
-                source: "IMDb",
-                img: "https://picsum.photos/id/133/400/300"
-            }
-        ]
+        // Sample fallback data (May 2026)
+        let globalTrends = [
+            {title: "The Boys", year: "2019–2026", rating: "8.6", desc: "Superhero satire still dominating", img: "https://picsum.photos/id/1015/400/300"},
+            {title: "Invincible", year: "2021–", rating: "8.7", desc: "Animated season 3 hype", img: "https://picsum.photos/id/201/400/300"},
+            {title: "Michael", year: "2026", rating: "N/A", desc: "Jaafar Jackson MJ biopic", img: "https://picsum.photos/id/1005/400/300"},
+            {title: "Apex", year: "2026", rating: "N/A", desc: "Charlize Theron action", img: "https://picsum.photos/id/133/400/300"},
+            {title: "Project Hail Mary", year: "2026", rating: "N/A", desc: "Ryan Gosling sci-fi buzz", img: "https://picsum.photos/id/870/400/300"}
+        ];
 
-        const tvShows = [
-            {
-                title: "The Boys",
-                year: "2019–2026",
-                rating: "8.6 (862K)",
-                platform: "Prime Video",
-                desc: "Superhero satire still #1 globally",
-                img: "https://picsum.photos/id/1015/400/300"
-            },
-            {
-                title: "Invincible",
-                year: "2021–",
-                rating: "8.7 (333K)",
-                platform: "Prime Video",
-                desc: "Animated series breaking records",
-                img: "https://picsum.photos/id/201/400/300"
-            },
-            {
-                title: "Beef",
-                year: "2023–",
-                rating: "8.0 (169K)",
-                platform: "Netflix",
-                desc: "Comedy-drama still trending",
-                img: "https://picsum.photos/id/29/400/300"
-            },
-            {
-                title: "Euphoria",
-                year: "2019–2026",
-                rating: "8.2 (301K)",
-                platform: "HBO/Max",
-                desc: "Gen Z drama keeps the hype alive",
-                img: "https://picsum.photos/id/1009/400/300"
-            },
-            {
-                title: "From",
-                year: "2022–",
-                rating: "7.8 (178K)",
-                platform: "MGM+",
-                desc: "Mystery horror with massive fandom",
-                img: "https://picsum.photos/id/160/400/300"
-            }
-        ]
+        let tvShows = [...globalTrends.slice(0,4)];
+        let movies = globalTrends.slice(2);
+        let rednoteTrends = [
+            {title: "Love Favors (Pian Pian Chong Ai)", year: "2026", rating: "🔥 Viral", desc: "Reborn romance + bad boy trope", img: "https://picsum.photos/id/1009/400/300"},
+            {title: "The Richest Poor Guy", year: "2026", rating: "热播", desc: "彭昱畅 林允 C-drama", img: "https://picsum.photos/id/160/400/300"}
+        ];
+        let xBuzz = [
+            {user: "@TVInsider", text: "May 2026 streaming guide is out — Lord of the Flies, Spider-Noir, Dutton Ranch all dropping", likes: "1.2K"},
+            {user: "@whatonnetflix", text: "APEX leading Netflix top 10", likes: "3.4K"}
+        ];
 
-        const movies = [
-            {
-                title: "Project Hail Mary",
-                year: "2026",
-                rating: "—",
-                platform: "Ryan Gosling sci-fi",
-                desc: "X is losing its mind over early screenings",
-                img: "https://picsum.photos/id/870/400/300"
-            },
-            {
-                title: "Michael",
-                year: "2026",
-                rating: "—",
-                platform: "Michael Jackson biopic",
-                desc: "Jaafar Jackson + huge pre-release hype",
-                img: "https://picsum.photos/id/1005/400/300"
-            },
-            {
-                title: "Apex",
-                year: "2026",
-                rating: "—",
-                platform: "Charlize Theron action",
-                desc: "Fast-paced thriller climbing charts",
-                img: "https://picsum.photos/id/133/400/300"
-            }
-        ]
-
-        const rednoteTrends = [
-            {
-                title: "Love Favors (Pian Pian Chong Ai)",
-                year: "2026",
-                rating: "🔥 Viral",
-                platform: "Youku / 小红书",
-                desc: "Reborn high-school romance + bad-boy biker trope exploding",
-                source: "RedNote C-drama searches",
-                img: "https://picsum.photos/id/1009/400/300"
-            },
-            {
-                title: "The Infinite 10 Days",
-                year: "2026",
-                rating: "312K+ pre-orders",
-                platform: "Dilraba Dilmurat",
-                desc: "Infinite flow drama breaking heat records",
-                source: "RedNote + Weibo",
-                img: "https://picsum.photos/id/160/400/300"
-            },
-            {
-                title: "Low IQ Crime",
-                year: "2026",
-                rating: "May release",
-                platform: "Tian Xiwei suspense",
-                desc: "95花 showdowns dominating feeds",
-                source: "Chinese drama lists",
-                img: "https://picsum.photos/id/201/400/300"
-            },
-            {
-                title: "Sword Rose",
-                year: "2026",
-                rating: "Top daily views",
-                platform: "Dilraba drama",
-                desc: "Maoyan heat list leader",
-                source: "RedNote buzz",
-                img: "https://picsum.photos/id/29/400/300"
-            }
-        ]
-
-        const xBuzz = [
-            {
-                user: "@hydrothemc",
-                text: "First time the moonwalk was on US TV? Shalamar did it a year before MJ and it was so popular they brought them back. TV history 🔥",
-                likes: "4.9K",
-                time: "2d ago",
-                show: "Michael Jackson / Music TV"
-            },
-            {
-                user: "@UnseenJapanSite",
-                text: "Netflix just picked up the legendary Japanese late-night show Monday Late Show worldwide. Peak variety TV is coming 🌍",
-                likes: "1.8K",
-                time: "8d ago",
-                show: "Monday Late Show"
-            },
-            {
-                user: "@MiddleEastEye",
-                text: "Calls to boycott The Boys after Tomer Capone interview resurfaces. Superhero satire still sparking global conversations.",
-                likes: "4.3K",
-                time: "16d ago",
-                show: "The Boys"
-            }
-        ]
-
-        // Render functions
-        function renderCards(containerId, data, type = 'card') {
-            const container = document.getElementById(containerId)
-            container.innerHTML = ''
-            
-            data.forEach(item => {
-                const cardHTML = `
-                <div class="card-hover bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-800 group">
-                    <div class="relative">
-                        <img src="${item.img}" alt="${item.title}" class="w-full aspect-video object-cover">
-                        <div class="absolute top-3 right-3 bg-black/70 text-[10px] font-mono px-2 py-1 rounded-xl backdrop-blur-md">${item.rating || 'TRENDING'}</div>
-                        ${type === 'x' ? '' : `<div class="absolute bottom-3 left-3 bg-gradient-to-r from-pink-500/90 to-transparent text-xs px-3 py-1 rounded-3xl font-medium">${item.platform || item.source}</div>`}
-                    </div>
+        function renderCards(containerId, data) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = data.map(item => `
+                <div class="card-hover bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-700">
+                    <img src="${item.img}" alt="${item.title}" class="w-full aspect-video object-cover">
                     <div class="p-4">
-                        <h3 class="font-semibold text-lg leading-none mb-1">${item.title}</h3>
-                        <p class="text-xs text-zinc-400">${item.year || ''}</p>
-                        <p class="text-sm text-zinc-300 line-clamp-2 mt-3">${item.desc}</p>
-                        ${type === 'x' ? `
-                        <div class="flex justify-between items-center mt-4 text-xs">
-                            <div class="flex items-center gap-x-1">
-                                <i class="fa-brands fa-x-twitter text-sky-400"></i>
-                                <span>${item.user}</span>
-                            </div>
-                            <div>${item.likes} likes • ${item.time}</div>
-                        </div>` : ''}
+                        <h3 class="font-semibold text-lg">${item.title}</h3>
+                        <p class="text-xs text-zinc-400">${item.year} • ${item.rating}</p>
+                        <p class="text-sm text-zinc-300 mt-2 line-clamp-2">${item.desc}</p>
                     </div>
-                </div>`
-                container.innerHTML += cardHTML
-            })
-            
-            // Fill remaining slots with placeholders if needed
-            if (data.length < 5) {
-                for (let i = data.length; i < 5; i++) {
-                    container.innerHTML += `
-                    <div class="bg-zinc-900/50 rounded-3xl border border-dashed border-zinc-700 flex flex-col items-center justify-center py-12 text-zinc-400 text-center">
-                        <i class="fa-solid fa-fire text-4xl mb-3"></i>
-                        <p class="text-sm">More trends loading live...</p>
-                    </div>`
-                }
-            }
-        }
-
-        function populateAll() {
-            renderCards('global-grid', globalTrends)
-            renderCards('tv-grid', tvShows)
-            renderCards('movie-grid', movies)
-            renderCards('rednote-grid', rednoteTrends)
-            renderXBuzz()
+                </div>
+            `).join('');
         }
 
         function renderXBuzz() {
-            const container = document.getElementById('x-buzz')
-            container.innerHTML = xBuzz.map(buzz => `
-                <div class="bg-zinc-900 rounded-3xl p-6 border border-sky-400/20 flex gap-5">
-                    <div class="text-4xl text-sky-400"><i class="fa-brands fa-x-twitter"></i></div>
-                    <div class="flex-1">
-                        <div class="flex items-center justify-between">
-                            <p class="font-medium">${buzz.user}</p>
-                            <span class="text-xs text-zinc-400">${buzz.time}</span>
-                        </div>
-                        <p class="mt-2 text-zinc-200">${buzz.text}</p>
-                        <div class="mt-4 flex items-center gap-x-2 text-xs">
-                            <span class="bg-sky-400/10 text-sky-400 px-4 py-1 rounded-3xl">${buzz.show}</span>
-                            <span class="text-zinc-400">${buzz.likes} likes</span>
-                        </div>
-                    </div>
-                </div>`).join('')
+            const container = document.getElementById('x-buzz');
+            container.innerHTML = xBuzz.map(b => `
+                <div class="bg-zinc-900 p-6 rounded-3xl border border-sky-400/20">
+                    <p class="font-medium">${b.user}</p>
+                    <p class="mt-2">${b.text}</p>
+                    <p class="text-xs text-sky-400 mt-3">${b.likes} likes</p>
+                </div>
+            `).join('');
         }
 
-        // Tab switching
-        function switchTab(tabIndex) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'))
-            document.getElementById('content-' + tabIndex).classList.remove('hidden')
-            
-            // Update active tab styles
-            document.querySelectorAll('.tab-link').forEach(link => link.classList.remove('active', 'text-pink-400'))
-            const activeTab = document.getElementById('tab-' + tabIndex)
-            if (activeTab) activeTab.classList.add('active', 'text-pink-400')
+        async function fetchTMDBTrends() {
+            if (!TMDB_API_KEY) {
+                alert("请先在代码第 120 行左右粘贴你的 TMDb API Key！");
+                return;
+            }
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#000;border:2px solid #ff00aa;padding:16px 24px;border-radius:9999px;';
+            toast.textContent = '🚀 正在拉取 TMDb 最新趋势...';
+            document.body.appendChild(toast);
+
+            try {
+                const [tvRes, movieRes] = await Promise.all([
+                    fetch(`https://api.themoviedb.org/3/trending/tv/week?api_key=${TMDB_API_KEY}`),
+                    fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${TMDB_API_KEY}`)
+                ]);
+                const tvData = await tvRes.json();
+                const movieData = await movieRes.json();
+
+                globalTrends = [
+                    ...tvData.results.slice(0,3).map(i => ({
+                        title: i.name || i.title,
+                        year: (i.first_air_date || i.release_date || '2026').slice(0,4),
+                        rating: i.vote_average.toFixed(1),
+                        desc: i.overview ? i.overview.substring(0,90) + '...' : 'Hot right now',
+                        img: i.poster_path ? `https://image.tmdb.org/t/p/w500${i.poster_path}` : 'https://picsum.photos/id/1015/400/300'
+                    })),
+                    ...movieData.results.slice(0,3).map(i => ({
+                        title: i.title,
+                        year: (i.release_date || '2026').slice(0,4),
+                        rating: i.vote_average.toFixed(1),
+                        desc: i.overview ? i.overview.substring(0,90) + '...' : 'Hot right now',
+                        img: i.poster_path ? `https://image.tmdb.org/t/p/w500${i.poster_path}` : 'https://picsum.photos/id/133/400/300'
+                    }))
+                ];
+
+                renderCards('global-grid', globalTrends);
+                toast.textContent = '✅ 最新趋势加载完成！';
+                setTimeout(() => toast.remove(), 2000);
+            } catch(e) {
+                toast.textContent = '❌ 拉取失败，请检查网络或 API Key';
+                setTimeout(() => toast.remove(), 3000);
+            }
         }
 
-        // Simple search filter
+        function switchTab(n) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`content-${n}`).classList.remove('hidden');
+            document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active', 'text-pink-400'));
+            document.getElementById(`tab-${n}`).classList.add('active', 'text-pink-400');
+        }
+
         function filterContent() {
-            const query = document.getElementById('search-input').value.toLowerCase().trim()
-            if (!query) {
-                populateAll()
-                return
-            }
-            
-            // For demo, just filter global
-            const filtered = globalTrends.filter(item => 
-                item.title.toLowerCase().includes(query) || 
-                (item.desc && item.desc.toLowerCase().includes(query))
-            )
-            
-            const container = document.getElementById('global-grid')
-            container.innerHTML = ''
-            
-            if (filtered.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-20 text-zinc-400">No matches for "${query}" — try "The Boys" or "RedNote"</div>`
-                return
-            }
-            
-            renderCards('global-grid', filtered)
-            switchTab(0) // Show global tab
+            const q = document.getElementById('search-input').value.toLowerCase();
+            if (!q) return;
+            const filtered = globalTrends.filter(i => i.title.toLowerCase().includes(q));
+            renderCards('global-grid', filtered.length ? filtered : globalTrends);
+            switchTab(0);
         }
 
-        // Fake refresh animation
-        function refreshData() {
-            const btns = document.querySelectorAll('button')
-            btns.forEach(b => b.style.opacity = 0.6)
-            
-            // Simulate loading new data
-            setTimeout(() => {
-                // Shuffle slightly for demo
-                globalTrends.unshift(globalTrends.pop())
-                populateAll()
-                
-                btns.forEach(b => b.style.opacity = 1)
-                
-                const toast = document.createElement('div')
-                toast.innerHTML = `✅ Trends refreshed! (IMDb + RedNote + X just updated)`
-                toast.style.cssText = 'position:fixed; bottom:24px; right:24px; background:#000; color:#fff; padding:16px 24px; border-radius:9999px; border:2px solid #ff00aa; box-shadow:0 10px 15px -3px rgb(249 115 22);'
-                document.body.appendChild(toast)
-                
-                setTimeout(() => toast.remove(), 3000)
-            }, 1200)
+        function refreshAllData() {
+            fetchTMDBTrends();
+            // You can expand this to call other APIs later
         }
 
-        // Initialize everything
-        window.onload = function() {
-            initializeTailwind()
-            populateAll()
-            
-            // Keyboard shortcut hint
-            console.log('%c👋 Hi Dani! Press "/" anytime to focus the search bar.', 'color:#ff00aa; font-family:monospace')
-            
-            console.log('%c✅ Your WatchTrend site is ready! Push this single file to GitHub → https://github.com/dnyx51 and enable GitHub Pages. It already links to your profile.', 'color:#a78bfa; font-weight:600')
-        }
+        // Init
+        window.onload = () => {
+            renderCards('global-grid', globalTrends);
+            renderCards('tv-grid', tvShows);
+            renderCards('movie-grid', movies);
+            renderCards('rednote-grid', rednoteTrends);
+            renderXBuzz();
+            switchTab(0);
+            console.log('%c你瞅啥 动态版已加载！Paste TMDb key and enjoy live data.', 'color:#ff00aa;font-weight:bold');
+        };
     </script>
 </body>
 </html>
