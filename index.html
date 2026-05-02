@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>你瞅啥 • 大家正在看啥</title>
+    <title>你瞅啥 / WatchTrend • 大家正在看啥</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap');
         body { font-family: 'Inter', system_ui, sans-serif; }
         .logo-font { font-family: 'Space Grotesk', sans-serif; }
+        .zh-font { font-family: 'Noto Sans SC', system_ui, sans-serif; }
         .hero-bg { background: linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.65) 100%), url('https://picsum.photos/id/1015/1920/1080') center/cover no-repeat; }
         .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .card-hover:hover { transform: translateY(-8px) scale(1.04); box-shadow: 0 25px 50px -12px rgb(236 72 153); }
+        .lang-toggle { transition: all 0.2s; }
     </style>
 </head>
 <body class="bg-zinc-950 text-white">
@@ -20,21 +22,28 @@
         <div class="max-w-screen-2xl mx-auto px-8 py-5 flex items-center justify-between">
             <div class="flex items-center gap-x-3">
                 <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-violet-500 rounded-2xl flex items-center justify-center text-3xl">👀</div>
-                <h1 class="logo-font text-4xl tracking-tighter">你瞅啥</h1>
+                <h1 class="logo-font text-4xl tracking-tighter" data-lang="logo">你瞅啥 / WatchTrend</h1>
             </div>
-            <div class="hidden md:flex items-center gap-x-8 text-sm font-medium">
-                <a href="#" onclick="switchTab(0)" class="tab-link active text-pink-400 flex items-center gap-x-1" id="tab-0"><i class="fa-solid fa-globe"></i> GLOBAL</a>
-                <a href="#" onclick="switchTab(1)" class="tab-link flex items-center gap-x-1 hover:text-pink-400" id="tab-1"><i class="fa-solid fa-tv"></i> TV</a>
-                <a href="#" onclick="switchTab(2)" class="tab-link flex items-center gap-x-1 hover:text-pink-400" id="tab-2"><i class="fa-solid fa-film"></i> MOVIES</a>
-                <a href="#" onclick="switchTab(3)" class="tab-link flex items-center gap-x-1 hover:text-pink-400" id="tab-3"><i class="fa-solid fa-redhat"></i> 小红书</a>
-                <a href="#" onclick="switchTab(4)" class="tab-link flex items-center gap-x-1 hover:text-pink-400" id="tab-4"><i class="fa-brands fa-x-twitter"></i> X BUZZ</a>
-            </div>
-            <div class="flex items-center gap-x-4">
-                <input id="search-input" type="text" placeholder="搜索剧集 / 电影..." 
-                       class="bg-zinc-900 border border-zinc-700 focus:border-pink-400 rounded-3xl px-5 py-2 pl-10 w-72 text-sm focus:outline-none" onkeyup="if(event.key==='Enter') filterContent()">
-                <button onclick="refreshAllData()" class="bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 px-6 py-2.5 rounded-3xl text-sm font-semibold flex items-center gap-x-2 transition-all">
-                    <i class="fa-solid fa-rotate"></i> LIVE REFRESH
-                </button>
+            
+            <div class="flex items-center gap-x-8">
+                <div class="hidden md:flex items-center gap-x-8 text-sm font-medium">
+                    <a href="#" onclick="switchTab(0)" class="tab-link active text-pink-400 flex items-center gap-x-1" id="tab-0" data-lang="nav-global">🌍 GLOBAL</a>
+                    <a href="#" onclick="switchTab(1)" class="tab-link flex items-center gap-x-1 hover:text-pink-400" id="tab-1" data-lang="nav-tv">📺 TV</a>
+                    <a href="#" onclick="switchTab(2)" class="tab-link flex items-center gap-x-1 hover:text-pink-400" id="tab-2" data-lang="nav-movies">🎬 MOVIES</a>
+                    <a href="#" onclick="switchTab(3)" class="tab-link flex items-center gap-x-1 hover:text-pink-400" id="tab-3" data-lang="nav-rednote">🇨🇳 小红书</a>
+                    <a href="#" onclick="switchTab(4)" class="tab-link flex items-center gap-x-1 hover:text-pink-400" id="tab-4" data-lang="nav-x">🐦 X BUZZ</a>
+                </div>
+                
+                <div class="flex items-center gap-x-4">
+                    <button onclick="toggleLanguage()" id="lang-btn"
+                            class="lang-toggle px-4 py-1.5 bg-zinc-900 hover:bg-zinc-800 rounded-3xl text-sm font-medium border border-zinc-700 flex items-center gap-x-2">
+                        <span id="current-lang">EN / 中文</span>
+                    </button>
+                    <button onclick="refreshAllData()" 
+                            class="bg-gradient-to-r from-pink-500 to-violet-500 hover:from-pink-600 px-6 py-2.5 rounded-3xl text-sm font-semibold flex items-center gap-x-2 transition-all">
+                        <i class="fa-solid fa-rotate"></i> <span data-lang="btn-refresh">LIVE REFRESH</span>
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
@@ -43,14 +52,17 @@
         <div class="max-w-screen-2xl mx-auto px-8 text-center">
             <div class="inline-flex items-center gap-x-2 bg-white/10 backdrop-blur-md px-6 py-2 rounded-3xl mb-6 text-sm">
                 <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                LIVE • 2026年5月
+                <span data-lang="live">LIVE • 2026年5月</span>
             </div>
-            <h2 class="text-7xl md:text-8xl font-semibold logo-font tracking-tighter leading-none mb-4">
-                大家正在看啥？
+            <h2 class="text-7xl md:text-8xl font-semibold logo-font tracking-tighter leading-none mb-4" data-lang="hero-title">
+                大家正在看啥？<br>What's Everyone Watching?
             </h2>
-            <p class="text-xl text-zinc-300 max-w-xl mx-auto">IMDb • X • 小红书 实时趋势 • 为你量身打造</p>
-            <button onclick="fetchTMDBTrends()" class="mt-10 px-10 py-4 bg-white text-black rounded-3xl font-semibold flex items-center gap-x-3 mx-auto hover:bg-amber-300 transition-all">
-                <i class="fa-solid fa-bolt"></i> 从 TMDb 拉取最新全球趋势
+            <p class="text-xl text-zinc-300 max-w-xl mx-auto" data-lang="hero-desc">
+                IMDb • X • 小红书 实时趋势 • Real-time trends from English & Chinese social
+            </p>
+            <button onclick="fetchTMDBTrends()" 
+                    class="mt-10 px-10 py-4 bg-white text-black rounded-3xl font-semibold flex items-center gap-x-3 mx-auto hover:bg-amber-300 transition-all">
+                <i class="fa-solid fa-bolt"></i> <span data-lang="btn-tmdb">从 TMDb 拉取最新趋势 / Fetch from TMDb</span>
             </button>
         </div>
     </header>
@@ -59,66 +71,93 @@
         <!-- GLOBAL -->
         <div id="content-0" class="tab-content">
             <div class="flex justify-between items-baseline mb-8">
-                <h2 class="text-4xl font-semibold">🌍 Global Live Trends (IMDb + TMDb)</h2>
+                <h2 class="text-4xl font-semibold" data-lang="global-title">🌍 Global Live Trends (IMDb + TMDb)</h2>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" id="global-grid"></div>
         </div>
 
         <!-- TV -->
         <div id="content-1" class="tab-content hidden">
-            <h2 class="text-4xl font-semibold mb-8">📺 Hot TV Shows</h2>
+            <h2 class="text-4xl font-semibold mb-8" data-lang="tv-title">📺 Hot TV Shows</h2>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" id="tv-grid"></div>
         </div>
 
         <!-- MOVIES -->
         <div id="content-2" class="tab-content hidden">
-            <h2 class="text-4xl font-semibold mb-8">🎬 Trending Movies</h2>
+            <h2 class="text-4xl font-semibold mb-8" data-lang="movies-title">🎬 Trending Movies</h2>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" id="movie-grid"></div>
         </div>
 
         <!-- REDNOTE -->
         <div id="content-3" class="tab-content hidden">
-            <h2 class="text-4xl font-semibold mb-8">🇨🇳 小红书 / C-Drama Hot</h2>
+            <div class="flex justify-between items-baseline mb-8">
+                <h2 class="text-4xl font-semibold" data-lang="rednote-title">🇨🇳 小红书 on English TV/Movies</h2>
+            </div>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" id="rednote-grid"></div>
         </div>
 
         <!-- X BUZZ -->
         <div id="content-4" class="tab-content hidden">
-            <h2 class="text-4xl font-semibold mb-8">🐦 Live X Buzz</h2>
+            <h2 class="text-4xl font-semibold mb-8" data-lang="x-title">🐦 Live X Buzz</h2>
             <div class="space-y-6" id="x-buzz"></div>
         </div>
     </main>
 
     <footer class="bg-black py-12 border-t border-zinc-800 text-center text-zinc-400 text-sm">
-        <p>你瞅啥 @dnyx51 • nichousha repo • Data from IMDb, TMDb, X, 小红书</p>
-        <p class="mt-2">Paste your free TMDb API key in the script and click LIVE REFRESH</p>
+        <p data-lang="footer">你瞅啥 / WatchTrend @dnyx51 • nichousha repo</p>
+        <p class="mt-1 text-xs" data-lang="footer2">Data from IMDb, TMDb, X, 小红书 • Bilingual mode</p>
         <a href="https://github.com/dnyx51/nichousha" target="_blank" class="text-pink-400 hover:underline mt-4 inline-block">GitHub Repo</a>
     </footer>
 
     <script>
-        // ====================== TMDb API KEY ======================
-        // Get free key: https://www.themoviedb.org/settings/api (v3 Auth)
-        const TMDB_API_KEY = 'e18f60cbea11335a1851da0e498fcf05';   // ← PASTE YOUR KEY HERE
+        // ====================== CONFIG ======================
+        const TMDB_API_KEY = '';   // ← PASTE YOUR TMDb KEY HERE (free from themoviedb.org)
 
-        // Sample fallback data (May 2026)
+        let currentLang = 'zh'; // 'zh' or 'en'
+
+        // Data (2026 trends)
         let globalTrends = [
-            {title: "The Boys", year: "2019–2026", rating: "8.6", desc: "Superhero satire still dominating", img: "https://picsum.photos/id/1015/400/300"},
-            {title: "Invincible", year: "2021–", rating: "8.7", desc: "Animated season 3 hype", img: "https://picsum.photos/id/201/400/300"},
-            {title: "Michael", year: "2026", rating: "N/A", desc: "Jaafar Jackson MJ biopic", img: "https://picsum.photos/id/1005/400/300"},
-            {title: "Apex", year: "2026", rating: "N/A", desc: "Charlize Theron action", img: "https://picsum.photos/id/133/400/300"},
-            {title: "Project Hail Mary", year: "2026", rating: "N/A", desc: "Ryan Gosling sci-fi buzz", img: "https://picsum.photos/id/870/400/300"}
+            {title: "The Boys", zhTitle: "黑袍纠察队", year: "2019–2026", rating: "8.6", desc: "Superhero satire still dominating", zhDesc: "超级英雄讽刺剧持续霸榜", img: "https://picsum.photos/id/1015/400/300"},
+            {title: "Invincible", zhTitle: "无敌少年", year: "2021–", rating: "8.7", desc: "Animated season 3 hype", zhDesc: "动画第3季热度爆棚", img: "https://picsum.photos/id/201/400/300"},
+            {title: "Michael", zhTitle: "迈克尔", year: "2026", rating: "N/A", desc: "Jaafar Jackson MJ biopic", zhDesc: "迈克尔·杰克逊传记", img: "https://picsum.photos/id/1005/400/300"},
+            {title: "Apex", zhTitle: "巅峰", year: "2026", rating: "N/A", desc: "Charlize Theron action", zhDesc: "查理兹·塞隆动作片", img: "https://picsum.photos/id/133/400/300"},
+            {title: "Project Hail Mary", zhTitle: "海玛丽计划", year: "2026", rating: "N/A", desc: "Ryan Gosling sci-fi", zhDesc: "瑞恩·高斯林科幻", img: "https://picsum.photos/id/870/400/300"}
         ];
 
-        let tvShows = [...globalTrends.slice(0,4)];
+        let tvShows = globalTrends.slice(0, 4);
         let movies = globalTrends.slice(2);
+
         let rednoteTrends = [
-            {title: "Love Favors (Pian Pian Chong Ai)", year: "2026", rating: "🔥 Viral", desc: "Reborn romance + bad boy trope", img: "https://picsum.photos/id/1009/400/300"},
-            {title: "The Richest Poor Guy", year: "2026", rating: "热播", desc: "彭昱畅 林允 C-drama", img: "https://picsum.photos/id/160/400/300"}
+            {title: "Spider-Noir (Nicolas Cage)", zhTitle: "蜘蛛侠：黑色", year: "2026", rating: "🔥 RedNote Buzz", desc: "Marvel Noir getting Chinese reactions", zhDesc: "漫威黑色蜘蛛侠在小红书热议", img: "https://picsum.photos/id/133/400/300"},
+            {title: "Lord of the Flies", zhTitle: "蝇王", year: "2026", rating: "Netflix Hot", desc: "Adaptation widely discussed", zhDesc: "Netflix改编版讨论热烈", img: "https://picsum.photos/id/201/400/300"},
+            {title: "The Boys S5", zhTitle: "黑袍纠察队 S5", year: "2026", rating: "Ongoing", desc: "Final season talks on RedNote", zhDesc: "最终季在小红书引发讨论", img: "https://picsum.photos/id/1015/400/300"}
         ];
+
         let xBuzz = [
-            {user: "@TVInsider", text: "May 2026 streaming guide is out — Lord of the Flies, Spider-Noir, Dutton Ranch all dropping", likes: "1.2K"},
-            {user: "@whatonnetflix", text: "APEX leading Netflix top 10", likes: "3.4K"}
+            {user: "@TVInsider", text: "May 2026 streaming: Lord of the Flies, Spider-Noir dropping", zhText: "2026年5月新剧：蝇王、蜘蛛侠黑色上线", likes: "1.2K"},
+            {user: "@whatonnetflix", text: "APEX & English titles trending", zhText: "APEX 等英语内容走红", likes: "3.4K"}
         ];
+
+        const translations = {
+            'logo': { zh: '你瞅啥 / WatchTrend', en: 'WatchTrend / 你瞅啥' },
+            'live': { zh: 'LIVE • 2026年5月', en: 'LIVE • May 2026' },
+            'hero-title': { zh: '大家正在看啥？', en: "What's Everyone Watching?" },
+            'hero-desc': { zh: 'IMDb • X • 小红书 实时趋势', en: 'Real-time trends from IMDb, X, RedNote' },
+            'btn-tmdb': { zh: '从 TMDb 拉取最新趋势', en: 'Fetch Latest from TMDb' },
+            'btn-refresh': { zh: '实时刷新', en: 'LIVE REFRESH' },
+            'nav-global': { zh: '🌍 GLOBAL', en: '🌍 GLOBAL' },
+            'nav-tv': { zh: '📺 TV', en: '📺 TV' },
+            'nav-movies': { zh: '🎬 MOVIES', en: '🎬 MOVIES' },
+            'nav-rednote': { zh: '🇨🇳 小红书', en: '🇨🇳 REDNOTE' },
+            'nav-x': { zh: '🐦 X BUZZ', en: '🐦 X BUZZ' },
+            'global-title': { zh: '🌍 全球实时趋势', en: '🌍 Global Live Trends' },
+            'tv-title': { zh: '📺 热门电视剧', en: '📺 Hot TV Shows' },
+            'movies-title': { zh: '🎬 热门电影', en: '🎬 Trending Movies' },
+            'rednote-title': { zh: '🇨🇳 小红书英语剧讨论', en: '🇨🇳 RedNote on English TV/Movies' },
+            'x-title': { zh: '🐦 X实时讨论', en: '🐦 Live X Buzz' },
+            'footer': { zh: '你瞅啥 / WatchTrend @dnyx51', en: 'WatchTrend / 你瞅啥 @dnyx51' },
+            'footer2': { zh: '数据来自 IMDb / TMDb / X / 小红书', en: 'Data from IMDb, TMDb, X, RedNote' }
+        };
 
         function renderCards(containerId, data) {
             const container = document.getElementById(containerId);
@@ -126,9 +165,9 @@
                 <div class="card-hover bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-700">
                     <img src="${item.img}" alt="${item.title}" class="w-full aspect-video object-cover">
                     <div class="p-4">
-                        <h3 class="font-semibold text-lg">${item.title}</h3>
+                        <h3 class="font-semibold text-lg">${currentLang === 'zh' && item.zhTitle ? item.zhTitle : item.title}</h3>
                         <p class="text-xs text-zinc-400">${item.year} • ${item.rating}</p>
-                        <p class="text-sm text-zinc-300 mt-2 line-clamp-2">${item.desc}</p>
+                        <p class="text-sm text-zinc-300 mt-2 line-clamp-2">${currentLang === 'zh' && item.zhDesc ? item.zhDesc : item.desc}</p>
                     </div>
                 </div>
             `).join('');
@@ -139,7 +178,7 @@
             container.innerHTML = xBuzz.map(b => `
                 <div class="bg-zinc-900 p-6 rounded-3xl border border-sky-400/20">
                     <p class="font-medium">${b.user}</p>
-                    <p class="mt-2">${b.text}</p>
+                    <p class="mt-2">${currentLang === 'zh' && b.zhText ? b.zhText : b.text}</p>
                     <p class="text-xs text-sky-400 mt-3">${b.likes} likes</p>
                 </div>
             `).join('');
@@ -147,12 +186,12 @@
 
         async function fetchTMDBTrends() {
             if (!TMDB_API_KEY) {
-                alert("请先在代码第 120 行左右粘贴你的 TMDb API Key！");
+                alert(currentLang === 'zh' ? "请先粘贴 TMDb API Key！" : "Please paste your TMDb API Key first!");
                 return;
             }
             const toast = document.createElement('div');
-            toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#000;border:2px solid #ff00aa;padding:16px 24px;border-radius:9999px;';
-            toast.textContent = '🚀 正在拉取 TMDb 最新趋势...';
+            toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#000;border:2px solid #ff00aa;padding:16px 24px;border-radius:9999px;color:white;';
+            toast.textContent = currentLang === 'zh' ? '🚀 正在拉取 TMDb 数据...' : '🚀 Fetching from TMDb...';
             document.body.appendChild(toast);
 
             try {
@@ -166,25 +205,29 @@
                 globalTrends = [
                     ...tvData.results.slice(0,3).map(i => ({
                         title: i.name || i.title,
+                        zhTitle: i.name || i.title,
                         year: (i.first_air_date || i.release_date || '2026').slice(0,4),
                         rating: i.vote_average.toFixed(1),
                         desc: i.overview ? i.overview.substring(0,90) + '...' : 'Hot right now',
+                        zhDesc: i.overview ? i.overview.substring(0,90) + '...' : '热门中',
                         img: i.poster_path ? `https://image.tmdb.org/t/p/w500${i.poster_path}` : 'https://picsum.photos/id/1015/400/300'
                     })),
                     ...movieData.results.slice(0,3).map(i => ({
                         title: i.title,
+                        zhTitle: i.title,
                         year: (i.release_date || '2026').slice(0,4),
                         rating: i.vote_average.toFixed(1),
                         desc: i.overview ? i.overview.substring(0,90) + '...' : 'Hot right now',
+                        zhDesc: i.overview ? i.overview.substring(0,90) + '...' : '热门中',
                         img: i.poster_path ? `https://image.tmdb.org/t/p/w500${i.poster_path}` : 'https://picsum.photos/id/133/400/300'
                     }))
                 ];
 
                 renderCards('global-grid', globalTrends);
-                toast.textContent = '✅ 最新趋势加载完成！';
+                toast.textContent = currentLang === 'zh' ? '✅ 最新趋势已加载！' : '✅ Latest trends loaded!';
                 setTimeout(() => toast.remove(), 2000);
             } catch(e) {
-                toast.textContent = '❌ 拉取失败，请检查网络或 API Key';
+                toast.textContent = currentLang === 'zh' ? '❌ 拉取失败' : '❌ Fetch failed';
                 setTimeout(() => toast.remove(), 3000);
             }
         }
@@ -196,17 +239,39 @@
             document.getElementById(`tab-${n}`).classList.add('active', 'text-pink-400');
         }
 
+        function toggleLanguage() {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            document.getElementById('current-lang').textContent = currentLang === 'zh' ? '中文 / EN' : 'EN / 中文';
+            
+            // Re-render all cards with new language
+            renderCards('global-grid', globalTrends);
+            renderCards('tv-grid', tvShows);
+            renderCards('movie-grid', movies);
+            renderCards('rednote-grid', rednoteTrends);
+            renderXBuzz();
+            
+            // Translate static texts
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if (translations[key]) {
+                    el.textContent = translations[key][currentLang];
+                }
+            });
+        }
+
         function filterContent() {
             const q = document.getElementById('search-input').value.toLowerCase();
             if (!q) return;
-            const filtered = globalTrends.filter(i => i.title.toLowerCase().includes(q));
+            const filtered = globalTrends.filter(i => 
+                (i.title && i.title.toLowerCase().includes(q)) || 
+                (i.zhTitle && i.zhTitle.toLowerCase().includes(q))
+            );
             renderCards('global-grid', filtered.length ? filtered : globalTrends);
             switchTab(0);
         }
 
         function refreshAllData() {
             fetchTMDBTrends();
-            // You can expand this to call other APIs later
         }
 
         // Init
@@ -217,7 +282,7 @@
             renderCards('rednote-grid', rednoteTrends);
             renderXBuzz();
             switchTab(0);
-            console.log('%c你瞅啥 动态版已加载！Paste TMDb key and enjoy live data.', 'color:#ff00aa;font-weight:bold');
+            console.log('%c你瞅啥 / WatchTrend bilingual dynamic version loaded!', 'color:#ff00aa;font-weight:bold');
         };
     </script>
 </body>
