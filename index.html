@@ -71,21 +71,58 @@
         }
 
         async function fetchTMDBTrends() {
-            if (!TMDB_API_KEY) return alert("No TMDb key");
-            try {
-                const [tvRes, movieRes] = await Promise.all([
-                    fetch(`https://api.themoviedb.org/3/trending/tv/week?api_key=${TMDB_API_KEY}`),
-                    fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${TMDB_API_KEY}`)
-                ]);
-                const tv = await tvRes.json();
-                const movie = await movieRes.json();
-                globalTrends = [
-                    ...tv.results.slice(0,3).map(i => ({title: i.name||i.title, zhTitle: i.name||i.title, year: (i.first_air_date||'2026').slice(0,4), rating: i.vote_average.toFixed(1), desc: i.overview?.slice(0,80)+'...', img: `https://image.tmdb.org/t/p/w500${i.poster_path}`, tmdbId: i.id, mediaType: 'tv'})),
-                    ...movie.results.slice(0,3).map(i => ({title: i.title, zhTitle: i.title, year: (i.release_date||'2026').slice(0,4), rating: i.vote_average.toFixed(1), desc: i.overview?.slice(0,80)+'...', img: `https://image.tmdb.org/t/p/w500${i.poster_path}`, tmdbId: i.id, mediaType: 'movie'}))
-                ];
-                renderCards('global-grid', globalTrends);
-            } catch(e) { console.error(e); alert("Fetch failed"); }
-        }
+    if (!TMDB_API_KEY) {
+        alert("Please set TMDB_API_KEY");
+        return;
+    }
+    try {
+        const headers = {
+            'Authorization': `Bearer ${TMDB_API_KEY}`,
+            'accept': 'application/json'
+        };
+
+        const [tvRes, movieRes] = await Promise.all([
+            fetch('https://api.themoviedb.org/3/trending/tv/week', { headers }),
+            fetch('https://api.themoviedb.org/3/trending/movie/week', { headers })
+        ]);
+
+        if (!tvRes.ok || !movieRes.ok) throw new Error('API error');
+
+        const tv = await tvRes.json();
+        const movie = await movieRes.json();
+
+        globalTrends = [
+            ...tv.results.slice(0,3).map(i => ({
+                title: i.name || i.title,
+                zhTitle: i.name || i.title,
+                year: (i.first_air_date || i.release_date || '2026').slice(0,4),
+                rating: i.vote_average.toFixed(1),
+                desc: i.overview ? i.overview.substring(0,90) + '...' : 'Hot',
+                zhDesc: i.overview ? i.overview.substring(0,90) + '...' : '热门',
+                img: i.poster_path ? `https://image.tmdb.org/t/p/w500${i.poster_path}` : 'https://picsum.photos/id/1015/400/300',
+                tmdbId: i.id,
+                mediaType: 'tv'
+            })),
+            ...movie.results.slice(0,3).map(i => ({
+                title: i.title,
+                zhTitle: i.title,
+                year: (i.release_date || '2026').slice(0,4),
+                rating: i.vote_average.toFixed(1),
+                desc: i.overview ? i.overview.substring(0,90) + '...' : 'Hot',
+                zhDesc: i.overview ? i.overview.substring(0,90) + '...' : '热门',
+                img: i.poster_path ? `https://image.tmdb.org/t/p/w500${i.poster_path}` : 'https://picsum.photos/id/133/400/300',
+                tmdbId: i.id,
+                mediaType: 'movie'
+            }))
+        ];
+
+        renderCards('global-grid', globalTrends);
+        alert("✅ Success! Trends loaded from TMDb");
+    } catch(e) {
+        console.error(e);
+        alert("Fetch failed - check console (F12) for details");
+    }
+}
 
         function switchTab(n) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
