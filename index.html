@@ -16,137 +16,27 @@
     </style>
 </head>
 <body class="bg-zinc-950 text-white">
-    <!-- Navbar, Header, Main content (same as your previous version) -->
-    <!-- ... (I kept it identical to your structure) -->
-
-    <nav class="bg-black border-b border-zinc-800 sticky top-0 z-50">
-        <div class="max-w-screen-2xl mx-auto px-8 py-5 flex items-center justify-between">
-            <div class="flex items-center gap-x-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-violet-500 rounded-2xl flex items-center justify-center text-3xl">👀</div>
-                <h1 class="logo-font text-4xl tracking-tighter" data-lang="logo">你瞅啥 / WatchTrend</h1>
-            </div>
-            <div class="flex items-center gap-x-8">
-                <div class="hidden md:flex items-center gap-x-8 text-sm font-medium">
-                    <a href="#" onclick="switchTab(0)" class="tab-link active text-pink-400" id="tab-0" data-lang="nav-global">🌍 GLOBAL</a>
-                    <a href="#" onclick="switchTab(1)" class="tab-link" id="tab-1" data-lang="nav-tv">📺 TV</a>
-                    <a href="#" onclick="switchTab(2)" class="tab-link" id="tab-2" data-lang="nav-movies">🎬 MOVIES</a>
-                    <a href="#" onclick="switchTab(3)" class="tab-link" id="tab-3" data-lang="nav-rednote">🇨🇳 小红书</a>
-                    <a href="#" onclick="switchTab(4)" class="tab-link" id="tab-4" data-lang="nav-x">🐦 X BUZZ</a>
-                </div>
-                <div class="flex items-center gap-x-4">
-                    <button onclick="toggleLanguage()" class="px-4 py-1.5 bg-zinc-900 hover:bg-zinc-800 rounded-3xl text-sm font-medium border border-zinc-700">🌐 EN / 中文</button>
-                    <button onclick="refreshAllData()" class="bg-gradient-to-r from-pink-500 to-violet-500 px-6 py-2.5 rounded-3xl text-sm font-semibold">🔄 LIVE REFRESH</button>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Header and main content omitted for brevity — keep your existing ones -->
+    <!-- Your existing Navbar, Header, Main (keep as is) -->
 
     <script>
-        const TMDB_API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJiMTQzYzFkOTFkOGVhOWFkMDIzNTJjMTI3OGZlYTZlMiIsIm5iZiI6MTc3NzcwNDQ0Ni42ODcsInN1YiI6IjY5ZjU5ZGZlZjY4YTUzNmQ5M2MyNjA3MiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.2a1SzalKEeplVhbE7gKPiqsC7t3ley_Qxvo3UrMDgyw'; // your key
+        const TMDB_API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1MmY2ZWM1YzRhMjM1N2IwZjk2NTY0NDljMzQ0ZjdiZiIsIm5iZiI6MTc3NzcwNDQ0Ni42ODcsInN1YiI6IjY5ZjU5ZGZlZjY4YTUzNmQ5M2MyNjA3MiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.7zlZnBYXtZxFskaZjshucumcpD49LzGt5t1xQaNPLUY'; // ← Update with fresh v4 key
 
         let currentLang = 'zh';
-        let globalTrends = [ /* your data */ ];
+        let globalTrends = [];
 
         function renderCards(containerId, data) {
             const container = document.getElementById(containerId);
-            container.innerHTML = data.map(item => {
-                let link = item.tmdbId 
-                    ? `https://www.themoviedb.org/${item.mediaType || 'tv'}/${item.tmdbId}` 
-                    : `https://www.themoviedb.org/search?query=${encodeURIComponent(item.title)}`;
-                return `
-                    <a href="${link}" target="_blank" class="block">
-                        <div class="card-hover bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-700">
-                            <img src="${item.img}" class="w-full aspect-video object-cover">
-                            <div class="p-4">
-                                <h3 class="font-semibold">${currentLang === 'zh' && item.zhTitle ? item.zhTitle : item.title}</h3>
-                                <p class="text-xs text-zinc-400">${item.year} • ${item.rating}</p>
-                                <p class="text-sm text-zinc-300 mt-2 line-clamp-2">${currentLang === 'zh' && item.zhDesc ? item.zhDesc : item.desc}</p>
-                            </div>
-                        </div>
-                    </a>
-                `;
-            }).join('');
+            if (!container) return;
+            // ... rest of your renderCards (with <a> links)
         }
 
-       async function fetchTMDBTrends() {
-    if (!TMDB_API_KEY) {
-        alert("Please set TMDB_API_KEY");
-        return;
-    }
-    try {
-        const headers = {
-            'Authorization': `Bearer ${TMDB_API_KEY}`,
-            'accept': 'application/json'
-        };
+        // Rest of your functions...
 
-        const [tvRes, movieRes] = await Promise.all([
-            fetch('https://api.themoviedb.org/3/trending/tv/week', { headers }),
-            fetch('https://api.themoviedb.org/3/trending/movie/week', { headers })
-        ]);
-
-        if (!tvRes.ok || !movieRes.ok) throw new Error('API error');
-
-        const tv = await tvRes.json();
-        const movie = await movieRes.json();
-
-        globalTrends = [
-            ...tv.results.slice(0,3).map(i => ({
-                title: i.name || i.title,
-                zhTitle: i.name || i.title,
-                year: (i.first_air_date || i.release_date || '2026').slice(0,4),
-                rating: i.vote_average.toFixed(1),
-                desc: i.overview ? i.overview.substring(0,90) + '...' : 'Hot',
-                zhDesc: i.overview ? i.overview.substring(0,90) + '...' : '热门',
-                img: i.poster_path ? `https://image.tmdb.org/t/p/w500${i.poster_path}` : 'https://picsum.photos/id/1015/400/300',
-                tmdbId: i.id,
-                mediaType: 'tv'
-            })),
-            ...movie.results.slice(0,3).map(i => ({
-                title: i.title,
-                zhTitle: i.title,
-                year: (i.release_date || '2026').slice(0,4),
-                rating: i.vote_average.toFixed(1),
-                desc: i.overview ? i.overview.substring(0,90) + '...' : 'Hot',
-                zhDesc: i.overview ? i.overview.substring(0,90) + '...' : '热门',
-                img: i.poster_path ? `https://image.tmdb.org/t/p/w500${i.poster_path}` : 'https://picsum.photos/id/133/400/300',
-                tmdbId: i.id,
-                mediaType: 'movie'
-            }))
-        ];
-
-        renderCards('global-grid', globalTrends);
-        alert("✅ Success! Trends loaded from TMDb");
-    } catch(e) {
-        console.error(e);
-        alert("Fetch failed - check console (F12) for details");
-    }
-}
-
-        function switchTab(n) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`content-${n}`).classList.remove('hidden');
-            document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active', 'text-pink-400'));
-            document.getElementById(`tab-${n}`).classList.add('active', 'text-pink-400');
-        }
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'zh' ? 'en' : 'zh';
-            // re-render cards + translate
+        window.addEventListener('load', () => {
+            // Initial render after everything loads
             renderCards('global-grid', globalTrends);
-            // add similar for other grids
-            console.log('Language switched to', currentLang);
-        }
-
-        function refreshAllData() {
             fetchTMDBTrends();
-        }
-
-        window.onload = () => {
-            // render initial cards...
-            fetchTMDBTrends();
-        };
+        });
     </script>
 </body>
 </html>
