@@ -3,107 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>你瞅啥 / WatchTrend • 大家正在看啥</title>
+    <title>你瞅啥 / WatchTrend</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap');
         body { font-family: 'Inter', system_ui, sans-serif; }
         .logo-font { font-family: 'Space Grotesk', sans-serif; }
         .hero-bg { background: linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.65) 100%), url('https://picsum.photos/id/1015/1920/1080') center/cover no-repeat; }
-        .card-hover:hover { transform: translateY(-8px) scale(1.03); }
+        .card-hover:hover { transform: translateY(-8px) scale(1.04); }
     </style>
 </head>
 <body class="bg-zinc-950 text-white">
 
-    <!-- NAV -->
     <nav class="bg-black border-b border-zinc-800 sticky top-0 z-50">
         <div class="max-w-screen-2xl mx-auto px-8 py-5 flex items-center justify-between">
             <div class="flex items-center gap-x-3">
                 <div class="text-3xl">👀</div>
-                <h1 class="logo-font text-4xl tracking-tighter">你瞅啥 / WatchTrend</h1>
+                <h1 class="logo-font text-4xl tracking-tighter" data-lang="logo">你瞅啥 / WatchTrend</h1>
             </div>
-            <div class="flex items-center gap-x-6 text-sm">
-                <a href="#" onclick="switchTab(0)" class="tab-link active" id="tab-0">🌍 GLOBAL</a>
-                <a href="#" onclick="switchTab(1)" class="tab-link" id="tab-1">📺 TV</a>
-                <a href="#" onclick="switchTab(2)" class="tab-link" id="tab-2">🎬 MOVIES</a>
-                <a href="#" onclick="switchTab(3)" class="tab-link" id="tab-3">🇨🇳 小红书</a>
-                <a href="#" onclick="switchTab(4)" class="tab-link" id="tab-4">🐦 X BUZZ</a>
-                <a href="#" onclick="switchTab(5)" class="tab-link" id="tab-5">⭐ MY LIST</a>
+            
+            <div class="flex items-center gap-x-8 text-sm font-medium">
+                <a href="#" onclick="switchTab(0)" class="tab-link active text-pink-400" id="tab-0" data-lang="nav-global">🌍 GLOBAL</a>
+                <a href="#" onclick="switchTab(1)" class="tab-link" id="tab-1" data-lang="nav-tv">📺 TV</a>
+                <a href="#" onclick="switchTab(2)" class="tab-link" id="tab-2" data-lang="nav-movies">🎬 MOVIES</a>
+                <a href="#" onclick="switchTab(3)" class="tab-link" id="tab-3" data-lang="nav-rednote">🇨🇳 小红书</a>
+                <a href="#" onclick="switchTab(4)" class="tab-link" id="tab-4" data-lang="nav-x">🐦 X BUZZ</a>
             </div>
+
             <div class="flex items-center gap-x-4">
-                <input id="search" type="text" placeholder="搜索剧集或电影..." 
-                       class="bg-zinc-900 border border-zinc-700 rounded-3xl px-5 py-2 w-72 focus:outline-none focus:border-pink-500"
-                       onkeyup="if(event.key==='Enter') searchContent()">
+                <button onclick="toggleLanguage()" id="lang-btn"
+                        class="px-5 py-2 bg-zinc-900 hover:bg-zinc-800 rounded-3xl text-sm font-medium border border-zinc-700 flex items-center gap-x-2">
+                    <span id="current-lang">中文 / EN</span>
+                </button>
                 <button onclick="refreshAllData()" class="bg-gradient-to-r from-pink-500 to-violet-500 px-6 py-2.5 rounded-3xl text-sm font-semibold flex items-center gap-x-2">
-                    <i class="fa-solid fa-rotate"></i> REFRESH
+                    <i class="fa-solid fa-rotate"></i> <span data-lang="refresh">REFRESH</span>
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- HERO -->
     <header class="hero-bg h-screen flex items-center relative">
         <div class="max-w-screen-2xl mx-auto px-8 text-center">
-            <h2 class="text-7xl font-bold logo-font tracking-tighter">大家正在看啥？</h2>
-            <p class="text-2xl mt-4 text-zinc-300">Real-time Trending TV & Movies</p>
+            <h2 class="text-7xl md:text-8xl font-semibold logo-font tracking-tighter leading-none mb-4" data-lang="hero">大家正在看啥？</h2>
+            <p class="text-2xl text-zinc-300" data-lang="hero-sub">Real-time Trending TV & Movies</p>
         </div>
     </header>
 
     <main class="max-w-screen-2xl mx-auto px-8 pb-20">
-        <!-- GLOBAL -->
         <div id="content-0" class="tab-content">
-            <h2 class="text-4xl font-semibold mb-8">🌍 Global Trending</h2>
+            <h2 class="text-4xl font-semibold mb-8" data-lang="global-title">🌍 Global Trending Right Now</h2>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" id="global-grid"></div>
         </div>
-
-        <!-- TV, MOVIES, REDNOTE, X BUZZ, MY LIST tabs follow the same pattern -->
-        <!-- (Full code is long, but all tabs are included below in the script) -->
-
     </main>
 
     <script>
-        // Data
-        let globalTrends = [ /* same good data as before */ ];
-        let myWatchlist = [];
+        let currentLang = 'zh'; // 'zh' or 'en'
 
-        function renderCards(containerId, data, isWatchlist = false) {
-            const container = document.getElementById(containerId);
-            container.innerHTML = data.map(item => `
+        const translations = {
+            "logo": { zh: "你瞅啥 / WatchTrend", en: "WatchTrend / 你瞅啥" },
+            "hero": { zh: "大家正在看啥？", en: "What's Everyone Watching?" },
+            "hero-sub": { zh: "实时热门剧集与电影", en: "Real-time Trending TV & Movies" },
+            "global-title": { zh: "🌍 全球实时趋势", en: "🌍 Global Trending Right Now" },
+            "nav-global": { zh: "🌍 GLOBAL", en: "🌍 GLOBAL" },
+            "nav-tv": { zh: "📺 TV", en: "📺 TV" },
+            "nav-movies": { zh: "🎬 MOVIES", en: "🎬 MOVIES" },
+            "nav-rednote": { zh: "🇨🇳 小红书", en: "🇨🇳 REDNOTE" },
+            "nav-x": { zh: "🐦 X BUZZ", en: "🐦 X BUZZ" },
+            "refresh": { zh: "刷新", en: "REFRESH" }
+        };
+
+        let globalTrends = [
+            {title: "The Boys", zhTitle: "黑袍纠察队", year: "2026", rating: "8.7", desc: "Season 5 dominating", zhDesc: "第5季霸榜全球", img: "https://picsum.photos/id/1015/400/300"},
+            {title: "Invincible", zhTitle: "无敌少年", year: "2026", rating: "8.8", desc: "Season 3 is fire", zhDesc: "第3季爆火", img: "https://picsum.photos/id/201/400/300"},
+            {title: "Michael", zhTitle: "迈克尔", year: "2026", rating: "N/A", desc: "Jaafar Jackson MJ biopic", zhDesc: "迈克尔·杰克逊传记", img: "https://picsum.photos/id/1005/400/300"},
+            {title: "Apex", zhTitle: "巅峰", year: "2026", rating: "N/A", desc: "Charlize Theron action", zhDesc: "查理兹·塞隆动作片", img: "https://picsum.photos/id/133/400/300"},
+            {title: "Project Hail Mary", zhTitle: "海玛丽计划", year: "2026", rating: "N/A", desc: "Ryan Gosling sci-fi", zhDesc: "瑞恩·高斯林科幻", img: "https://picsum.photos/id/870/400/300"}
+        ];
+
+        function renderCards() {
+            const container = document.getElementById('global-grid');
+            container.innerHTML = globalTrends.map(item => `
                 <a href="https://www.themoviedb.org/search?query=${encodeURIComponent(item.title)}" target="_blank" class="block">
                     <div class="card-hover bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-700">
                         <img src="${item.img}" class="w-full aspect-video object-cover">
                         <div class="p-4">
-                            <h3 class="font-semibold">${item.title}</h3>
+                            <h3 class="font-semibold text-lg">${currentLang === 'zh' ? item.zhTitle : item.title}</h3>
                             <p class="text-xs text-zinc-400">${item.year} • ${item.rating}</p>
-                            <p class="text-sm text-zinc-300 mt-1 line-clamp-2">${item.desc}</p>
-                            ${isWatchlist ? `<button onclick="removeFromList('${item.title}');event.preventDefault()" class="text-red-400 text-xs mt-2">Remove</button>` : ''}
+                            <p class="text-sm text-zinc-300 mt-2">${currentLang === 'zh' ? item.zhDesc : item.desc}</p>
                         </div>
                     </div>
                 </a>
             `).join('');
         }
 
-        function switchTab(n) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`content-${n}`).classList.remove('hidden');
+        function toggleLanguage() {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            document.getElementById('current-lang').textContent = currentLang === 'zh' ? '中文 / EN' : 'EN / 中文';
+            
+            // Update all translatable elements
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if (translations[key]) {
+                    el.textContent = translations[key][currentLang];
+                }
+            });
+
+            renderCards(); // Re-render cards in new language
         }
 
-        function searchContent() {
-            const q = document.getElementById('search').value.toLowerCase();
-            const filtered = globalTrends.filter(i => i.title.toLowerCase().includes(q));
-            renderCards('global-grid', filtered.length ? filtered : globalTrends);
+        function switchTab(n) {
+            alert(currentLang === 'zh' ? "更多标签即将上线！" : "More tabs coming soon!");
         }
 
         function refreshAllData() {
-            alert("🔄 Refreshed!");
-            renderCards('global-grid', globalTrends);
+            renderCards();
+            alert(currentLang === 'zh' ? "✅ 已刷新！" : "✅ Refreshed!");
         }
 
         // Init
         window.onload = () => {
-            renderCards('global-grid', globalTrends);
-            switchTab(0);
+            renderCards();
         };
     </script>
 </body>
