@@ -11,7 +11,8 @@
         body { font-family: 'Inter', system_ui, sans-serif; }
         .logo-font { font-family: 'Space Grotesk', sans-serif; }
         .hero-bg { background: linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.65) 100%), url('https://picsum.photos/id/1015/1920/1080') center/cover no-repeat; }
-        .card-hover:hover { transform: translateY(-8px) scale(1.04); }
+        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { transform: translateY(-8px) scale(1.04); box-shadow: 0 25px 50px -12px rgb(236 72 153); }
     </style>
 </head>
 <body class="bg-zinc-950 text-white">
@@ -20,7 +21,7 @@
         <div class="max-w-screen-2xl mx-auto px-8 py-5 flex items-center justify-between">
             <div class="flex items-center gap-x-3">
                 <div class="text-3xl">👀</div>
-                <h1 class="logo-font text-4xl tracking-tighter" data-lang="logo">你瞅啥 / WatchTrend</h1>
+                <h1 id="logo-title" class="logo-font text-4xl tracking-tighter">你瞅啥</h1>
             </div>
             
             <div class="flex items-center gap-x-8 text-sm font-medium">
@@ -34,7 +35,7 @@
             <div class="flex items-center gap-x-4">
                 <button onclick="toggleLanguage()" id="lang-btn"
                         class="px-5 py-2 bg-zinc-900 hover:bg-zinc-800 rounded-3xl text-sm font-medium border border-zinc-700 flex items-center gap-x-2">
-                    <span id="current-lang">中文 / EN</span>
+                    <span id="current-lang">EN</span>
                 </button>
                 <button onclick="refreshAllData()" class="bg-gradient-to-r from-pink-500 to-violet-500 px-6 py-2.5 rounded-3xl text-sm font-semibold flex items-center gap-x-2">
                     <i class="fa-solid fa-rotate"></i> <span data-lang="refresh">REFRESH</span>
@@ -45,24 +46,31 @@
 
     <header class="hero-bg h-screen flex items-center relative">
         <div class="max-w-screen-2xl mx-auto px-8 text-center">
-            <h2 class="text-7xl md:text-8xl font-semibold logo-font tracking-tighter leading-none mb-4" data-lang="hero">大家正在看啥？</h2>
-            <p class="text-2xl text-zinc-300" data-lang="hero-sub">Real-time Trending TV & Movies</p>
+            <h2 id="hero-title" class="text-7xl md:text-8xl font-semibold logo-font tracking-tighter leading-none mb-4">大家正在看啥？</h2>
+            <p id="hero-sub" class="text-2xl text-zinc-300">Real-time Trending TV & Movies</p>
         </div>
     </header>
 
     <main class="max-w-screen-2xl mx-auto px-8 pb-20">
+        <!-- GLOBAL -->
         <div id="content-0" class="tab-content">
-            <h2 class="text-4xl font-semibold mb-8" data-lang="global-title">🌍 Global Trending Right Now</h2>
+            <h2 id="global-title" class="text-4xl font-semibold mb-8">🌍 Global Trending Right Now</h2>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" id="global-grid"></div>
         </div>
+
+        <!-- Placeholder for other tabs -->
+        <div id="content-1" class="tab-content hidden"><h2 class="text-4xl font-semibold mb-8">📺 Hot TV Shows</h2><p class="text-zinc-400">Coming soon...</p></div>
+        <div id="content-2" class="tab-content hidden"><h2 class="text-4xl font-semibold mb-8">🎬 Trending Movies</h2><p class="text-zinc-400">Coming soon...</p></div>
+        <div id="content-3" class="tab-content hidden"><h2 class="text-4xl font-semibold mb-8">🇨🇳 小红书 Discussions</h2><p class="text-zinc-400">Coming soon...</p></div>
+        <div id="content-4" class="tab-content hidden"><h2 class="text-4xl font-semibold mb-8">🐦 Live X Buzz</h2><p class="text-zinc-400">Coming soon...</p></div>
     </main>
 
     <script>
-        let currentLang = 'zh'; // 'zh' or 'en'
+        let currentLang = 'zh';
 
         const translations = {
-            "logo": { zh: "你瞅啥 / WatchTrend", en: "WatchTrend / 你瞅啥" },
-            "hero": { zh: "大家正在看啥？", en: "What's Everyone Watching?" },
+            "logo": { zh: "你瞅啥", en: "WatchTrend" },
+            "hero-title": { zh: "大家正在看啥？", en: "What's Everyone Watching?" },
             "hero-sub": { zh: "实时热门剧集与电影", en: "Real-time Trending TV & Movies" },
             "global-title": { zh: "🌍 全球实时趋势", en: "🌍 Global Trending Right Now" },
             "nav-global": { zh: "🌍 GLOBAL", en: "🌍 GLOBAL" },
@@ -99,21 +107,24 @@
 
         function toggleLanguage() {
             currentLang = currentLang === 'zh' ? 'en' : 'zh';
-            document.getElementById('current-lang').textContent = currentLang === 'zh' ? '中文 / EN' : 'EN / 中文';
             
-            // Update all translatable elements
+            document.getElementById('logo-title').textContent = translations.logo[currentLang];
+            document.getElementById('current-lang').textContent = currentLang === 'zh' ? 'EN' : '中文';
+            
             document.querySelectorAll('[data-lang]').forEach(el => {
                 const key = el.getAttribute('data-lang');
-                if (translations[key]) {
-                    el.textContent = translations[key][currentLang];
-                }
+                if (translations[key]) el.textContent = translations[key][currentLang];
             });
 
-            renderCards(); // Re-render cards in new language
+            renderCards();
         }
 
         function switchTab(n) {
-            alert(currentLang === 'zh' ? "更多标签即将上线！" : "More tabs coming soon!");
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`content-${n}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active', 'text-pink-400'));
+            document.getElementById(`tab-${n}`).classList.add('active', 'text-pink-400');
         }
 
         function refreshAllData() {
@@ -121,7 +132,6 @@
             alert(currentLang === 'zh' ? "✅ 已刷新！" : "✅ Refreshed!");
         }
 
-        // Init
         window.onload = () => {
             renderCards();
         };
