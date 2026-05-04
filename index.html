@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>你瞅啥 / WatchTrend</title>
+    <title>你瞅啥 / WatchTrend • 大家正在看啥</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
         body { font-family: 'Inter', system_ui, sans-serif; }
         .logo-font { font-family: 'Space Grotesk', sans-serif; }
         .hero-bg { background: linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.65) 100%), url('https://picsum.photos/id/1015/1920/1080') center/cover no-repeat; }
@@ -16,27 +16,69 @@
     </style>
 </head>
 <body class="bg-zinc-950 text-white">
-    <!-- Your existing Navbar, Header, Main (keep as is) -->
+
+    <nav class="bg-black border-b border-zinc-800 sticky top-0 z-50">
+        <div class="max-w-screen-2xl mx-auto px-8 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-violet-500 rounded-2xl flex items-center justify-center text-3xl">👀</div>
+                <h1 class="logo-font text-4xl tracking-tighter">你瞅啥 / WatchTrend</h1>
+            </div>
+            <div class="flex items-center gap-x-8">
+                <button onclick="refreshAllData()" class="bg-gradient-to-r from-pink-500 to-violet-500 px-6 py-2.5 rounded-3xl text-sm font-semibold flex items-center gap-x-2">
+                    <i class="fa-solid fa-rotate"></i> LIVE REFRESH
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero-bg h-[70vh] flex items-center relative">
+        <div class="max-w-screen-2xl mx-auto px-8 text-center">
+            <h2 class="text-6xl font-semibold logo-font tracking-tighter">大家正在看啥？</h2>
+            <p class="text-xl mt-4">Real-time trending TV & Movies</p>
+        </div>
+    </header>
+
+    <main class="max-w-screen-2xl mx-auto px-8 pb-20">
+        <div class="mb-8">
+            <h2 class="text-4xl font-semibold">🌍 Trending Right Now</h2>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6" id="global-grid"></div>
+    </main>
 
     <script>
-        const TMDB_API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1MmY2ZWM1YzRhMjM1N2IwZjk2NTY0NDljMzQ0ZjdiZiIsIm5iZiI6MTc3NzcwNDQ0Ni42ODcsInN1YiI6IjY5ZjU5ZGZlZjY4YTUzNmQ5M2MyNjA3MiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.7zlZnBYXtZxFskaZjshucumcpD49LzGt5t1xQaNPLUY'; // ← Update with fresh v4 key
+        let globalTrends = [
+            {title: "The Boys", zhTitle: "黑袍纠察队", year: "2026", rating: "8.7", desc: "Season 5 dominating discussions", img: "https://picsum.photos/id/1015/400/300"},
+            {title: "Invincible", zhTitle: "无敌少年", year: "2026", rating: "8.8", desc: "Season 3 breaking records", img: "https://picsum.photos/id/201/400/300"},
+            {title: "Michael", zhTitle: "迈克尔", year: "2026", rating: "N/A", desc: "Jaafar Jackson as MJ", img: "https://picsum.photos/id/1005/400/300"},
+            {title: "Apex", zhTitle: "巅峰", year: "2026", rating: "N/A", desc: "Charlize Theron action thriller", img: "https://picsum.photos/id/133/400/300"},
+            {title: "Project Hail Mary", zhTitle: "海玛丽计划", year: "2026", rating: "N/A", desc: "Ryan Gosling sci-fi", img: "https://picsum.photos/id/870/400/300"}
+        ];
 
-        let currentLang = 'zh';
-        let globalTrends = [];
-
-        function renderCards(containerId, data) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            // ... rest of your renderCards (with <a> links)
+        function renderCards() {
+            const container = document.getElementById('global-grid');
+            container.innerHTML = globalTrends.map(item => `
+                <a href="https://www.themoviedb.org/search?query=${encodeURIComponent(item.title)}" target="_blank" class="block">
+                    <div class="card-hover bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-700">
+                        <img src="${item.img}" class="w-full aspect-video object-cover">
+                        <div class="p-4">
+                            <h3 class="font-semibold text-lg">${item.title}</h3>
+                            <p class="text-xs text-zinc-400">${item.year} • ${item.rating}</p>
+                            <p class="text-sm text-zinc-300 mt-2">${item.desc}</p>
+                            <div class="mt-4 text-pink-400 text-xs flex items-center gap-1">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> View on TMDb
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            `).join('');
         }
 
-        // Rest of your functions...
+        function refreshAllData() {
+            alert("✅ Refreshed! (Static mode for now)\n\nGet a working TMDb key later to enable live fetch.");
+            renderCards();
+        }
 
-        window.addEventListener('load', () => {
-            // Initial render after everything loads
-            renderCards('global-grid', globalTrends);
-            fetchTMDBTrends();
-        });
+        window.onload = renderCards;
     </script>
 </body>
 </html>
