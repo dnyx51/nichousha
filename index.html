@@ -13,8 +13,7 @@
         .hero-bg { background: linear-gradient(90deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.65) 100%), url('https://picsum.photos/id/1015/1920/1080') center/cover no-repeat; }
         .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .card-hover:hover { transform: translateY(-8px) scale(1.04); box-shadow: 0 25px 50px -12px rgb(236 72 153); }
-        .poster-img { transition: all 0.3s; }
-        .poster-img:hover { transform: scale(1.05); }
+        .poster { aspect-ratio: 2 / 3; object-fit: cover; }
     </style>
 </head>
 <body class="bg-zinc-950 text-white">
@@ -63,7 +62,7 @@
     </main>
 
     <script>
-        const TMDB_API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1MmY2ZWM1YzRhMjM1N2IwZjk2NTY0NDljMzQ0ZjdiZiIsIm5iZiI6MTc3NzcwNDQ0Ni42ODcsInN1YiI6IjY5ZjU5ZGZlZjY4YTUzNmQ5M2MyNjA3MiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.7zlZnBYXtZxFskaZjshucumcpD49LzGt5t1xQaNPLUY';   // ← Replace with your real key
+        const TMDB_API_KEY = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1MmY2ZWM1YzRhMjM1N2IwZjk2NTY0NDljMzQ0ZjdiZiIsIm5iZiI6MTc3NzcwNDQ0Ni42ODcsInN1YiI6IjY5ZjU5ZGZlZjY4YTUzNmQ5M2MyNjA3MiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.7zlZnBYXtZxFskaZjshucumcpD49LzGt5t1xQaNPLUY';   // Your key
 
         let currentLang = 'zh';
 
@@ -79,10 +78,6 @@
         let globalTrends = [];
 
         async function fetchTMDBTrends() {
-            if (!TMDB_API_KEY || TMDB_API_KEY.length < 30) {
-                alert("Please paste your TMDb v4 key in the code");
-                return;
-            }
             try {
                 const headers = { 'Authorization': `Bearer ${TMDB_API_KEY}`, 'accept': 'application/json' };
                 const [tvRes, movieRes] = await Promise.all([
@@ -117,7 +112,6 @@
                 renderCards();
             } catch(e) {
                 console.error(e);
-                alert("TMDb fetch failed. Check your API key.");
             }
         }
 
@@ -127,7 +121,7 @@
             container.innerHTML = globalTrends.map(item => `
                 <a href="https://www.themoviedb.org/search?query=${encodeURIComponent(item.title)}" target="_blank" class="block">
                     <div class="card-hover bg-zinc-900 rounded-3xl overflow-hidden border border-zinc-700 h-full flex flex-col">
-                        <img src="${item.img}" class="poster-img w-full aspect-video object-cover" onerror="this.src='https://picsum.photos/id/1015/400/300'">
+                        <img src="${item.img}" class="poster w-full object-cover" onerror="this.src='https://picsum.photos/id/1015/400/300'">
                         <div class="p-5 flex-1 flex flex-col">
                             <h3 class="font-semibold text-xl">${currentLang === 'zh' ? item.zhTitle : item.title}</h3>
                             <p class="text-emerald-400 font-medium mt-1">★ ${item.rating}</p>
@@ -142,7 +136,6 @@
             currentLang = currentLang === 'zh' ? 'en' : 'zh';
             document.getElementById('logo-title').textContent = translations.logo[currentLang];
             document.getElementById('current-lang').textContent = currentLang === 'zh' ? 'EN' : '中文';
-            
             document.querySelectorAll('[data-lang]').forEach(el => {
                 const key = el.getAttribute('data-lang');
                 if (translations[key]) el.textContent = translations[key][currentLang];
@@ -154,12 +147,9 @@
             fetchTMDBTrends();
         }
 
-        // Auto refresh every 12 hours
         setInterval(refreshAllData, 12 * 60 * 60 * 1000);
 
-        window.onload = () => {
-            fetchTMDBTrends();
-        };
+        window.onload = fetchTMDBTrends;
     </script>
 </body>
 </html>
